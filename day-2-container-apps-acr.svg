@@ -1,0 +1,176 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1800" height="1250" viewBox="0 0 1800 1250" role="img" aria-labelledby="title desc">
+  <title id="title">Azure Container Apps and Azure Container Registry architecture</title>
+  <desc id="desc">A study diagram for AI-200 showing ACR, Container Apps Environment, microservices, ingress, managed identity, env vars, probes, volume mounts, logging, pricing tiers, and when to use Container Apps versus AKS.</desc>
+  <defs>
+    <style>
+      .bg { fill: #07111f; }
+      .panel { fill: #0d1b2d; stroke: #284866; stroke-width: 2; rx: 18; }
+      .panel2 { fill: #10243a; stroke: #2f5f87; stroke-width: 2; rx: 16; }
+      .service { fill: #132d46; stroke: #48a7f8; stroke-width: 2; rx: 14; }
+      .accent { fill: #0e7490; stroke: #67e8f9; stroke-width: 2; rx: 12; }
+      .warn { fill: #2a2438; stroke: #c084fc; stroke-width: 2; rx: 14; }
+      .storage { fill: #14281f; stroke: #6ee7b7; stroke-width: 2; rx: 12; }
+      .title { fill: #ffffff; font: 700 38px Arial, sans-serif; }
+      .h1 { fill: #ffffff; font: 700 27px Arial, sans-serif; }
+      .h2 { fill: #dbeafe; font: 700 21px Arial, sans-serif; }
+      .text { fill: #cbd5e1; font: 18px Arial, sans-serif; }
+      .small { fill: #b6c2d1; font: 15px Arial, sans-serif; }
+      .tiny { fill: #aab8c8; font: 13px Arial, sans-serif; }
+      .tag { fill: #081827; stroke: #3b82f6; stroke-width: 1.5; rx: 16; }
+      .tagText { fill: #dbeafe; font: 15px Arial, sans-serif; }
+      .arrow { stroke: #93c5fd; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .arrow2 { stroke: #6ee7b7; stroke-width: 3; fill: none; marker-end: url(#arrowGreen); }
+      .arrow3 { stroke: #fbbf24; stroke-width: 3; fill: none; marker-end: url(#arrowGold); }
+      .dash { stroke-dasharray: 8 8; }
+      .mutedLine { stroke: #36536f; stroke-width: 2; fill: none; }
+      .icon { fill: #38bdf8; }
+      .green { fill: #6ee7b7; }
+      .gold { fill: #fbbf24; }
+      .purple { fill: #c084fc; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#93c5fd"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6ee7b7"/>
+    </marker>
+    <marker id="arrowGold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#fbbf24"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1800" height="1250"/>
+
+  <text x="70" y="70" class="title">Azure Container Apps + ACR Study Map</text>
+  <text x="70" y="105" class="text">AI-200 prep mental model: build image, store in registry, run managed container apps, observe and scale without managing Kubernetes nodes.</text>
+
+  <!-- Developer and CI -->
+  <rect x="70" y="155" width="380" height="240" class="panel"/>
+  <text x="100" y="200" class="h1">Developer / CI</text>
+  <rect x="100" y="225" width="145" height="36" class="tag"/>
+  <text x="118" y="249" class="tagText">Dockerfile</text>
+  <rect x="260" y="225" width="150" height="36" class="tag"/>
+  <text x="278" y="249" class="tagText">Source code</text>
+  <text x="100" y="295" class="text">1. Build container image</text>
+  <text x="100" y="325" class="small">Use linux/amd64 when deploying from Apple Silicon</text>
+  <text x="100" y="360" class="text">2. Push tagged image to ACR</text>
+
+  <!-- ACR -->
+  <rect x="540" y="140" width="430" height="280" class="panel2"/>
+  <text x="575" y="185" class="h1">Azure Container Registry</text>
+  <text x="575" y="217" class="text">Private registry for container images</text>
+  <rect x="575" y="245" width="350" height="82" class="service"/>
+  <text x="600" y="278" class="h2">Repository</text>
+  <text x="600" y="306" class="text">demo-container-app : v1</text>
+  <text x="575" y="360" class="small">Pricing tiers: Basic, Standard, Premium</text>
+  <text x="575" y="386" class="small">Premium adds advanced networking and geo features</text>
+
+  <!-- Container Apps Environment -->
+  <rect x="520" y="500" width="1210" height="550" class="panel"/>
+  <text x="560" y="548" class="h1">Container Apps Environment</text>
+  <text x="560" y="580" class="text">Managed hosting boundary: networking, ingress, revisions, Dapr, scaling, logs</text>
+
+  <rect x="560" y="620" width="240" height="72" class="accent"/>
+  <text x="585" y="650" class="h2">Public Ingress</text>
+  <text x="585" y="675" class="small">HTTPS route, target port 80/8080</text>
+
+  <rect x="860" y="620" width="240" height="72" class="storage"/>
+  <text x="885" y="650" class="h2">Managed Identity</text>
+  <text x="885" y="675" class="small">AcrPull role to read ACR</text>
+
+  <rect x="1160" y="620" width="240" height="72" class="warn"/>
+  <text x="1185" y="650" class="h2">Revisions</text>
+  <text x="1185" y="675" class="small">New image/config creates revision</text>
+
+  <!-- Services -->
+  <rect x="600" y="760" width="300" height="205" class="service"/>
+  <text x="630" y="800" class="h1">Order Service</text>
+  <text x="630" y="835" class="small">External ingress enabled</text>
+  <text x="630" y="862" class="small">Env vars: API_MODE, INVENTORY_URL</text>
+  <text x="630" y="889" class="small">Health probes: liveness, readiness</text>
+  <text x="630" y="916" class="small">Scale rule: HTTP requests</text>
+  <text x="630" y="943" class="small">Volume mount: /app/config</text>
+
+  <rect x="990" y="760" width="300" height="205" class="service"/>
+  <text x="1020" y="800" class="h1">Inventory Service</text>
+  <text x="1020" y="835" class="small">Internal traffic only</text>
+  <text x="1020" y="862" class="small">Env vars: DB_HOST, STOCK_MODE</text>
+  <text x="1020" y="889" class="small">Health probes protect rollout</text>
+  <text x="1020" y="916" class="small">Scale rule: queue length</text>
+  <text x="1020" y="943" class="small">Secret refs for credentials</text>
+
+  <rect x="1380" y="760" width="300" height="205" class="service"/>
+  <text x="1410" y="800" class="h1">Payment Service</text>
+  <text x="1410" y="835" class="small">Internal traffic only</text>
+  <text x="1410" y="862" class="small">Env vars: PAYMENT_PROVIDER</text>
+  <text x="1410" y="889" class="small">Secrets: API keys</text>
+  <text x="1410" y="916" class="small">Health probes before traffic</text>
+  <text x="1410" y="943" class="small">Scale to zero when idle</text>
+
+  <!-- Observability -->
+  <rect x="1030" y="1090" width="350" height="105" class="panel2"/>
+  <text x="1060" y="1130" class="h1">Log Analytics</text>
+  <text x="1060" y="1162" class="small">Console logs, system logs, metrics, diagnostics</text>
+
+  <!-- Config and storage -->
+  <rect x="70" y="500" width="370" height="285" class="storage"/>
+  <text x="100" y="545" class="h1">Config and Runtime Features</text>
+  <text x="100" y="590" class="text">Environment variables</text>
+  <text x="100" y="622" class="text">Secrets and secret references</text>
+  <text x="100" y="654" class="text">Health probes</text>
+  <text x="100" y="686" class="text">Volume mounts</text>
+  <text x="100" y="718" class="text">CPU / memory settings</text>
+  <text x="100" y="750" class="text">Min / max replicas</text>
+
+  <!-- Pricing -->
+  <rect x="70" y="830" width="370" height="365" class="panel2"/>
+  <text x="100" y="875" class="h1">Pricing Mental Model</text>
+  <text x="100" y="922" class="h2">ACR</text>
+  <text x="100" y="950" class="small">Basic: low-cost dev/test registry</text>
+  <text x="100" y="975" class="small">Standard: more storage/throughput</text>
+  <text x="100" y="1000" class="small">Premium: geo-replication, private endpoints</text>
+  <text x="100" y="1045" class="h2">Container Apps</text>
+  <text x="100" y="1073" class="small">Consumption: serverless, can scale to zero</text>
+  <text x="100" y="1098" class="small">Dedicated/workload profiles: reserved compute</text>
+  <text x="100" y="1123" class="small">Costs depend on CPU, memory, replicas, logs</text>
+  <text x="100" y="1160" class="tiny">Exact prices change by region and date; check Azure Pricing Calculator.</text>
+
+  <!-- AKS comparison -->
+  <rect x="1120" y="140" width="610" height="280" class="warn"/>
+  <text x="1160" y="185" class="h1">What is Azure Container Apps?</text>
+  <text x="1160" y="225" class="text">A managed serverless platform for running containers.</text>
+  <text x="1160" y="260" class="text">It gives orchestration features without managing Kubernetes.</text>
+  <line x1="1160" y1="292" x2="1685" y2="292" class="mutedLine"/>
+  <text x="1160" y="330" class="h2">Use Container Apps when:</text>
+  <text x="1160" y="358" class="small">Microservices, APIs, workers, event-driven apps, scale-to-zero.</text>
+  <text x="1160" y="390" class="h2">Use AKS when:</text>
+  <text x="1160" y="418" class="small">You need full Kubernetes control, custom operators, cluster-level tuning.</text>
+
+  <!-- Arrows -->
+  <path d="M 450 270 C 485 270, 505 270, 540 270" class="arrow"/>
+  <text x="455" y="252" class="small">push image</text>
+
+  <path d="M 755 420 C 755 470, 900 500, 980 620" class="arrow2"/>
+  <text x="790" y="470" class="small">pull with managed identity</text>
+
+  <path d="M 800 655 C 820 710, 770 730, 750 760" class="arrow"/>
+  <text x="600" y="730" class="small">public HTTPS traffic</text>
+
+  <path d="M 900 862 C 935 862, 955 862, 990 862" class="arrow3"/>
+  <text x="910" y="842" class="tiny">internal call</text>
+
+  <path d="M 900 920 C 1080 1010, 1340 1010, 1380 920" class="arrow3"/>
+  <text x="1080" y="1015" class="tiny">internal payment call</text>
+
+  <path d="M 1220 965 C 1220 1010, 1220 1045, 1220 1090" class="arrow"/>
+  <text x="1235" y="1040" class="small">logs and metrics</text>
+
+  <path d="M 440 640 C 500 650, 520 735, 600 835" class="arrow2 dash"/>
+  <text x="450" y="625" class="small">settings used by apps</text>
+
+  <!-- Bottom legend -->
+  <rect x="520" y="1090" width="440" height="105" class="panel2"/>
+  <text x="550" y="1130" class="h1">Core exam idea</text>
+  <text x="550" y="1162" class="small">Container Apps abstracts much of Kubernetes, but still uses container images,</text>
+  <text x="550" y="1186" class="small">registries, identity, ingress, health, scale, config, and logging.</text>
+</svg>
